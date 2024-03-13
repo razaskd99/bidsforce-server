@@ -4,7 +4,7 @@ import os
 def get_db_connection():
 
     # for aws
-    if "AWS_REGION" in os.environ and os.environ["AWS_REGION"]:
+    if  "VERCEL_URL" in os.environ and os.environ["VERCEL_URL"]:
         conn = psycopg2.connect(
         dbname="test1",
         user="postgres",
@@ -14,7 +14,7 @@ def get_db_connection():
         )
 
     # for vercel    
-    elif "VERCEL_URL" in os.environ and os.environ["VERCEL_URL"]:
+    elif "AWS_REGION" in os.environ and os.environ["AWS_REGION"]:
         conn = psycopg2.connect(
         dbname="verceldb",
         user="default",
