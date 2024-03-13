@@ -3,7 +3,22 @@ import os
 
 def get_db_connection():
 
+    # for vercel    
+
     if  "VERCEL_URL" in os.environ and os.environ["VERCEL_URL"]:
+
+        conn = psycopg2.connect(
+        dbname="verceldb",
+        user="default",
+        password="RNkArZ4sfh9H",
+        host="ep-aged-dream-a41ao23e-pooler.us-east-1.aws.neon.tech",
+        port="5432"
+        )
+
+
+    # for aws    
+    elif "AWS_REGION" in os.environ and os.environ["AWS_REGION"]:
+
         conn = psycopg2.connect(
         dbname="test1",
         user="postgres",
@@ -12,15 +27,6 @@ def get_db_connection():
         port="5432"
         )
 
-    # for vercel    
-    #elif "AWS_REGION" in os.environ and os.environ["AWS_REGION"]:
-        #conn = psycopg2.connect(
-        #dbname="verceldb",
-        #user="default",
-        #password="RNkArZ4sfh9H",
-        #host="ep-aged-dream-a41ao23e-pooler.us-east-1.aws.neon.tech",
-        #port="5432"
-        #)
 
     # for localhost    
     else:
