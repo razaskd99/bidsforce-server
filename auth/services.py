@@ -89,7 +89,7 @@ def update_user(user_id: int, user_data: UserIn):
         query = """
             UPDATE users SET 
                 team_id = %s, designation_id = %s, company_id = %s, password = %s, first_name = %s, middle_name = %s,
-                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, password_salt = %s,
+                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, active = %s, password_salt = %s,
                 user_profile_photo = %s      
             WHERE user_id = %s
             RETURNING user_id, tenant_id, team_id, designation_id, company_id, user_name, email, password, first_name,
@@ -99,14 +99,14 @@ def update_user(user_id: int, user_data: UserIn):
         cursor.execute(query, (
             user_data.team_id, user_data.designation_id, user_data.company_id, hashed_password, user_data.first_name,
             user_data.middle_name, user_data.last_name, user_data.user_role, user_data.role_level, user_data.updated_at,
-            user_data.password_salt, user_data.user_profile_photo,
+            user_data.active,user_data.password_salt, user_data.user_profile_photo,
             user_id
         ))
     else:
         query = """
             UPDATE users SET 
                 team_id = %s, designation_id = %s, company_id = %s, first_name = %s, middle_name = %s,
-                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, password_salt = %s,
+                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, active %s, password_salt = %s,
                 user_profile_photo = %s      
             WHERE user_id = %s
             RETURNING user_id, tenant_id, team_id, designation_id, company_id, user_name, email, password, first_name,
@@ -116,7 +116,7 @@ def update_user(user_id: int, user_data: UserIn):
         cursor.execute(query, (
             user_data.team_id, user_data.designation_id, user_data.company_id, user_data.first_name,
             user_data.middle_name, user_data.last_name, user_data.user_role, user_data.role_level, user_data.updated_at,
-            user_data.password_salt, user_data.user_profile_photo,
+            user_data.active,user_data.password_salt, user_data.user_profile_photo,
             user_id
         ))
 
@@ -146,7 +146,7 @@ def update_user(user_id: int, user_data: UserIn):
             updated_at=user[16],
             active=user[17],
             verified=user[18],
-            user_profile_photo=user[19]
+            user_profile_photo=user[20]
         )
     else:
         raise HTTPException(status_code=500, detail="User Updation failed")
