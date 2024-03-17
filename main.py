@@ -59,7 +59,7 @@ from bid_review_post.routes import router as bid_review_post_router
 from bid_review_templates.routes import router as bid_review_templates_router
 from bid_submission.routes import router as bid_submission_router
 from bid_submission_post.routes import router as bid_submission_post_router
-
+from bid_submission_acknowledgement.routes import router as bid_submission_acknowledgement_router
 from review_templates.routes import router as review_templates_router
 
 from bid_deliverables.routes import router as bid_deliverables_router
@@ -175,3 +175,4 @@ app.include_router(uploads_router, prefix="/uploads")
 
 app.include_router(users_template_routers, prefix="/templates")
 
+app.include_router(bid_submission_acknowledgement_router, prefix="/bid_submission_acknowledgement")
