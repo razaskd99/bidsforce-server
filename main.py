@@ -87,7 +87,7 @@ app = FastAPI(
 
 
 origins = [
-    "https://bidsforce-client.vercel.app",
+    "https://bidsforce-client-phi.vercel.app",
     "http://localhost:3000",
         "http://127.0.0.1:3000",
 
