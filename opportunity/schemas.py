@@ -29,6 +29,11 @@ class OpportunityCreate(BaseModel):
     description: Optional[str]
     last_updated_at: Optional[datetime]
     forcasted: Optional[bool]
+    end_user_project: Optional[str]
+    opportunity_currency: Optional[str]
+    sales_persuit_progress: Optional[str]
+    opportunity_owner: Optional[str]
+    bidding_unit: Optional[str]  
 
 class Opportunity(OpportunityCreate):
     opportunity_id: int

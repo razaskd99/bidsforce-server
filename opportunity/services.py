@@ -36,8 +36,13 @@ def create_opportunity(opportunity_data: OpportunityCreate) -> Optional[Opportun
         gross_profit_value,
         description,
         last_updated_at,
-        forcasted
-    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;
+        forcasted,
+        end_user_project,
+        opportunity_currency,
+        sales_persuit_progress,
+        opportunity_owner,
+        bidding_unit 
+    ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s) RETURNING *;
     """
 
     values = (
@@ -66,7 +71,12 @@ def create_opportunity(opportunity_data: OpportunityCreate) -> Optional[Opportun
         opportunity_data.gross_profit_value,
         opportunity_data.description,
         opportunity_data.last_updated_at,
-        opportunity_data.forcasted
+        opportunity_data.forcasted,
+        opportunity_data.end_user_project,
+        opportunity_data.opportunity_currency,
+        opportunity_data.sales_persuit_progress,
+        opportunity_data.opportunity_owner,
+        opportunity_data.bidding_unit
     )
 
     cursor.execute(query, values)
@@ -75,10 +85,10 @@ def create_opportunity(opportunity_data: OpportunityCreate) -> Optional[Opportun
     query = """
         SELECT o.*, 
             p.company_name, p.email AS company_email, p.company_logo,
-            c.customer_name AS ct_customer_name, c.email AS customer_email
+            pp.company_name AS ct_customer_name, pp.email AS customer_email
             FROM opportunity o
-            INNER JOIN company p ON p.company_id=o.company_id
-            INNER JOIN customer c ON c.customer_id=o.customer_id
+            LEFT JOIN company p ON p.company_id=o.company_id
+            LEFT JOIN company pp ON pp.company_id=o.customer_id
         WHERE o.opportunity_id = %s;
         """
     
@@ -117,11 +127,16 @@ def create_opportunity(opportunity_data: OpportunityCreate) -> Optional[Opportun
             description=new_opportunity[24],
             last_updated_at=new_opportunity[25],
             forcasted=new_opportunity[26],
-            company_name=new_opportunity[27],
-            company_email=new_opportunity[28],
-            company_logo=new_opportunity[29],
-            ct_customer_name=new_opportunity[30],
-            customer_email=new_opportunity[31]
+            end_user_project=new_opportunity[27],
+            opportunity_currency=new_opportunity[28],
+            sales_persuit_progress=new_opportunity[29],
+            opportunity_owner=new_opportunity[30],
+            bidding_unit=new_opportunity[31],           
+            company_name=new_opportunity[32],
+            company_email=new_opportunity[33],
+            company_logo=new_opportunity[34],
+            ct_customer_name=new_opportunity[35],
+            customer_email=new_opportunity[36]
         )
     else:
         raise HTTPException(status_code=404, detail="Opportunity creation failed")
@@ -134,10 +149,10 @@ def get_all_opportunities(tenant_id: int) -> List[Opportunity]:
     query = """
         SELECT o.*, 
             p.company_name, p.email AS company_email, p.company_logo,
-            c.customer_name AS ct_customer_name, c.email AS customer_email
+            pp.company_name AS ct_customer_name, pp.email AS customer_email
             FROM opportunity o
-            INNER JOIN company p ON p.company_id=o.company_id
-            INNER JOIN customer c ON c.customer_id=o.customer_id
+            LEFT JOIN company p ON p.company_id=o.company_id
+            LEFT JOIN company pp ON pp.company_id=o.customer_id
         WHERE o.tenant_id = %s
         ORDER BY o.opportunity_id DESC;
         """
@@ -146,7 +161,7 @@ def get_all_opportunities(tenant_id: int) -> List[Opportunity]:
     opportunities = cursor.fetchall()
 
     conn.close()
-
+    
     return [
         Opportunity(
             opportunity_id=row[0],
@@ -176,11 +191,16 @@ def get_all_opportunities(tenant_id: int) -> List[Opportunity]:
             description=row[24],
             last_updated_at=row[25],
             forcasted=row[26],
-            company_name=row[27],
-            company_email=row[28],
-            company_logo=row[29],
-            ct_customer_name=row[30],
-            customer_email=row[31]
+            end_user_project=row[27],
+            opportunity_currency=row[28],
+            sales_persuit_progress=row[29],
+            opportunity_owner=row[30],
+            bidding_unit=row[31],           
+            company_name=row[32],
+            company_email=row[33],
+            company_logo=row[34],
+            ct_customer_name=row[35],
+            customer_email=row[36]
         )
         for row in opportunities
     ]
@@ -217,7 +237,12 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
         gross_profit_value = %s,
         description = %s,
         last_updated_at = %s,
-        forcasted = %s
+        forcasted = %s,
+        end_user_project = %s,
+        opportunity_currency = %s,
+        sales_persuit_progress = %s,
+        opportunity_owner = %s,
+        bidding_unit = %s
     WHERE tenant_id = %s AND opportunity_id = %s RETURNING *;
     """
 
@@ -247,7 +272,12 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
         opportunity_data.gross_profit_value,
         opportunity_data.description,
         opportunity_data.last_updated_at,
-        opportunity_data.forcasted,
+        opportunity_data.forcasted,        
+        opportunity_data.end_user_project,
+        opportunity_data.opportunity_currency,
+        opportunity_data.sales_persuit_progress,
+        opportunity_data.opportunity_owner,
+        opportunity_data.bidding_unit,        
         tenant_id,
         opportunity_id
     )
@@ -258,10 +288,10 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
     query = """
         SELECT o.*, 
             p.company_name, p.email AS company_email, p.company_logo,
-            c.customer_name AS ct_customer_name, c.email AS customer_email
+            pp.company_name AS ct_customer_name, pp.email AS customer_email
             FROM opportunity o
-            INNER JOIN company p ON p.company_id=o.company_id
-            INNER JOIN customer c ON c.customer_id=o.customer_id
+            LEFT JOIN company p ON p.company_id=o.company_id
+            LEFT JOIN company pp ON pp.company_id=o.customer_id
         WHERE o.tenant_id = %s AND o.opportunity_id = %s;
         """
     cursor.execute(query, (tenant_id, opportunity_id))
@@ -299,11 +329,16 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
             description=updated_opportunity[24],
             last_updated_at=updated_opportunity[25],
             forcasted=updated_opportunity[26],
-            company_name=updated_opportunity[27],
-            company_email=updated_opportunity[28],
-            company_logo=updated_opportunity[29],
-            ct_customer_name=updated_opportunity[30],
-            customer_email=updated_opportunity[31]
+            end_user_project=updated_opportunity[27],
+            opportunity_currency=updated_opportunity[28],
+            sales_persuit_progress=updated_opportunity[29],
+            opportunity_owner=updated_opportunity[30],
+            bidding_unit=updated_opportunity[31],           
+            company_name=updated_opportunity[32],
+            company_email=updated_opportunity[33],
+            company_logo=updated_opportunity[34],
+            ct_customer_name=updated_opportunity[35],
+            customer_email=updated_opportunity[36]
         )
     else:
         raise HTTPException(status_code=404, detail="Opportunity update failed")
@@ -333,10 +368,10 @@ def get_opportunity_by_id(tenant_id: int, opportunity_id: int) -> Optional[Oppor
     query = """
         SELECT o.*, 
             p.company_name, p.email AS company_email, p.company_logo,
-            c.customer_name AS ct_customer_name, c.email AS customer_email
+            pp.company_name AS ct_customer_name, pp.email AS customer_email
             FROM opportunity o
-            INNER JOIN company p ON p.company_id=o.company_id
-            INNER JOIN customer c ON c.customer_id=o.customer_id
+            LEFT JOIN company p ON p.company_id=o.company_id
+            LEFT JOIN company pp ON pp.company_id=o.customer_id
         WHERE o.tenant_id = %s AND o.opportunity_id = %s;
         """
     cursor.execute(query, (tenant_id, opportunity_id,))
@@ -373,11 +408,16 @@ def get_opportunity_by_id(tenant_id: int, opportunity_id: int) -> Optional[Oppor
             description=opportunity[24],
             last_updated_at=opportunity[25],
             forcasted=opportunity[26],
-            company_name=opportunity[27],
-            company_email=opportunity[28],
-            company_logo=opportunity[29],
-            ct_customer_name=opportunity[30],
-            customer_email=opportunity[31]
+            end_user_project=opportunity[27],
+            opportunity_currency=opportunity[28],
+            sales_persuit_progress=opportunity[29],
+            opportunity_owner=opportunity[30],
+            bidding_unit=opportunity[31],           
+            company_name=opportunity[32],
+            company_email=opportunity[33],
+            company_logo=opportunity[34],
+            ct_customer_name=opportunity[35],
+            customer_email=opportunity[36]
 
         )
             
@@ -391,10 +431,10 @@ def get_opportunity_by_title(tenant_id: int, title: str) -> Optional[Opportunity
     query = """
         SELECT o.*, 
             p.company_name, p.email AS company_email, p.company_logo,
-            c.customer_name AS ct_customer_name, c.email AS customer_email
+            pp.company_name AS ct_customer_name, pp.email AS customer_email
             FROM opportunity o
-            INNER JOIN company p ON p.company_id=o.company_id
-            INNER JOIN customer c ON c.customer_id=o.customer_id
+            LEFT JOIN company p ON p.company_id=o.company_id
+            LEFT JOIN company pp ON pp.company_id=o.customer_id
         WHERE o.tenant_id = %s AND lower(o.title) = %s;
         """
 
@@ -432,11 +472,16 @@ def get_opportunity_by_title(tenant_id: int, title: str) -> Optional[Opportunity
             description=opportunity[24],
             last_updated_at=opportunity[25],
             forcasted=opportunity[26],
-            company_name=opportunity[27],
-            company_email=opportunity[28],
-            company_logo=opportunity[29],
-            ct_customer_name=opportunity[30],
-            customer_email=opportunity[31]
+            end_user_project=opportunity[27],
+            opportunity_currency=opportunity[28],
+            sales_persuit_progress=opportunity[29],
+            opportunity_owner=opportunity[30],
+            bidding_unit=opportunity[31],           
+            company_name=opportunity[32],
+            company_email=opportunity[33],
+            company_logo=opportunity[34],
+            ct_customer_name=opportunity[35],
+            customer_email=opportunity[36]
         )
     else:
         raise HTTPException(status_code=404, detail="Opportunity not found")  

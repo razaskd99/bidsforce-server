@@ -52,19 +52,24 @@ from bid_order_meta.routes import router as bid_order_meta_router
 from contacts.routes import router as contacts_router
 from phase_stages.routes import router as phase_stages_router
 from phase_stages_detail.routes import router as phase_stages_detail_router
+from persona.routes import router as persona_router
 
 from bid_review.routes import router as bid_review_router
 from bid_review_contacts.routes import router as bid_review_contacts_router
 from bid_review_post.routes import router as bid_review_post_router
 from bid_review_templates.routes import router as bid_review_templates_router
 from bid_submission.routes import router as bid_submission_router
-from bid_submission_post.routes import router as bid_submission_post_router
 from bid_submission_acknowledgement.routes import router as bid_submission_acknowledgement_router
+from bid_submission_post.routes import router as bid_submission_post_router
+
 from review_templates.routes import router as review_templates_router
 
 from bid_deliverables.routes import router as bid_deliverables_router
 from bid_kickoff_meeting.routes import router as bid_kickoff_meeting_router
 
+from bid_team.routes import router as bidteam_router
+
+from primary_contacts.routes import router as primary_contacts_router
 
 from fastapi.responses import RedirectResponse
 from core.config import settings
@@ -156,23 +161,27 @@ app.include_router(bid_order_meta_router, prefix="/bid_order_meta")
 app.include_router(contacts_router, prefix="/contacts")
 app.include_router(phase_stages_router, prefix="/phase_stage")
 app.include_router(phase_stages_detail_router, prefix="/phase_stages_detail")
+app.include_router(persona_router, prefix="/persona")
 
 app.include_router(bid_review_router, prefix="/bid_review")
 app.include_router(bid_review_contacts_router, prefix="/bid_review_contacts")
 app.include_router(bid_review_post_router, prefix="/bid_review_post")
 app.include_router(bid_review_templates_router, prefix="/bid_review_templates")
 app.include_router(bid_submission_router, prefix="/bid_submissions")
+app.include_router(bid_submission_acknowledgement_router, prefix="/bid_submission_acknowledgement")
 app.include_router(bid_submission_post_router, prefix="/bid_submission_posts")
 
 app.include_router(review_templates_router, prefix="/review_template")
 
 app.include_router(bid_deliverables_router, prefix="/bid_deliverables")
 app.include_router(bid_kickoff_meeting_router, prefix="/bid_kickoff_meeting")
+app.include_router(bidteam_router, prefix="/bid_teams")
 
+
+app.include_router(primary_contacts_router, prefix="/primary_contacts")
 
 app.include_router(control_panel_router, prefix="/admin/control-panel") 
 app.include_router(uploads_router, prefix="/uploads")
 
 app.include_router(users_template_routers, prefix="/templates")
 
-app.include_router(bid_submission_acknowledgement_router, prefix="/bid_submission_acknowledgement")

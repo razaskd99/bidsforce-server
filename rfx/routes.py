@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from typing import List, Optional
 from . import services
 from .schemas import Rfx, RfxCreate, RfxGet, RfxGetSingleRec, RfxUpdateAcknowledgement
-from .schemas import RfxUpdateRfxNumber, RfxUpdateBidNumber, RfxUpdateBidAssignTo
+from .schemas import RfxUpdateRfxNumber, RfxUpdateBidNumber, RfxUpdateBidAssignTo, RfxUpdateStatus
 from auth.services import get_current_user
 
 router = APIRouter()
@@ -115,9 +115,14 @@ async def edit_bid_number(rfx_id: int, rfx_data: RfxUpdateBidNumber, current_use
     return services.update_bid_number(rfx_id, rfx_data)
 
 # Update BID Assign to by Rfx ID
-@router.put("/rfx/rfx-bid-assignto/id/{rfx_id}", response_model=Optional[bool], tags=["RFX"], summary="Update Bid Assign to by ID", description="Update an existing Bid Assign to ID by Rfx .")
+@router.put("/rfx/rfx-bid-assignto/id/{rfx_id}", response_model=Optional[bool], tags=["RFX"], summary="Update Bid Assign to by ID", description="Update an existing Bid Assign to by Rfx ID.")
 async def edit_bid_assignto(rfx_id: int, rfx_data: RfxUpdateBidAssignTo, current_user: str = Depends(get_current_user)):
     return services.update_bid_assignto(rfx_id, rfx_data)
+
+# Update Status to by Rfx ID
+@router.put("/rfx/rfx-status/id/{rfx_id}", response_model=Optional[bool], tags=["RFX"], summary="Update Status by ID", description="Update an existing Status by Rfx ID .")
+async def edit_status(rfx_id: int, rfx_data: RfxUpdateStatus, current_user: str = Depends(get_current_user)):
+    return services.update_status(rfx_id, rfx_data)
 
 # Delete an RFX by ID
 @router.delete(

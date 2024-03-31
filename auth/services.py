@@ -13,7 +13,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 SECRET_KEY = "your-secret-key"
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 90
+ACCESS_TOKEN_EXPIRE_MINUTES = 9000
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -83,9 +83,10 @@ def update_user(user_id: int, user_data: UserIn):
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    hashed_password = hash_password(user_data.password)
+    
     
     if user_data.password:
+        hashed_password = hash_password(user_data.password)
         query = """
             UPDATE users SET 
                 team_id = %s, designation_id = %s, company_id = %s, password = %s, first_name = %s, middle_name = %s,
@@ -106,7 +107,7 @@ def update_user(user_id: int, user_data: UserIn):
         query = """
             UPDATE users SET 
                 team_id = %s, designation_id = %s, company_id = %s, first_name = %s, middle_name = %s,
-                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, active %s, password_salt = %s,
+                last_name = %s, user_role = %s, role_level = %s, updated_at = %s, active = %s, password_salt = %s,
                 user_profile_photo = %s      
             WHERE user_id = %s
             RETURNING user_id, tenant_id, team_id, designation_id, company_id, user_name, email, password, first_name,
@@ -116,10 +117,10 @@ def update_user(user_id: int, user_data: UserIn):
         cursor.execute(query, (
             user_data.team_id, user_data.designation_id, user_data.company_id, user_data.first_name,
             user_data.middle_name, user_data.last_name, user_data.user_role, user_data.role_level, user_data.updated_at,
-            user_data.active,user_data.password_salt, user_data.user_profile_photo,
+            True, user_data.password_salt, user_data.user_profile_photo,
             user_id
         ))
-
+    print(user_data)
     user = cursor.fetchone()
     
     conn.commit()
