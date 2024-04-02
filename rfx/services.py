@@ -288,7 +288,6 @@ def update_rfx(rfx_id: int, rfx_data: RfxGet) -> Optional[RfxGetSingleRec]:
     cursor.execute(query, values)
     updated_acknowledgement = cursor.fetchone()
                 
-    print(update_rfx) 
     conn.commit()
     conn.close()
     

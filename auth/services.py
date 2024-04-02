@@ -120,7 +120,6 @@ def update_user(user_id: int, user_data: UserIn):
             True, user_data.password_salt, user_data.user_profile_photo,
             user_id
         ))
-    print(user_data)
     user = cursor.fetchone()
     
     conn.commit()

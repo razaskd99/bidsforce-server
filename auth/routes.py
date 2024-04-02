@@ -29,14 +29,12 @@ async def login_for_access_token(tenant_id: Optional[int] = None, form_data: OAu
             tenant_id = -1
 
     if tenant_id is not None and tenant_id != -1:
-        print('with')
         user = authenticate_user(tenant_id, form_data.username, form_data.password)
         if not user or 'email' not in user:  # Check if 'email' exists in the user data
             raise HTTPException(status_code=401, detail="Invalid credentials")
         access_token = create_access_token(data={"sub": user["email"],"user":user})
         return {"access_token": access_token, "token_type": "bearer"}
     else:
-        print('without')
         user = authenticate_user2(form_data.username, form_data.password)
         if not user or 'email' not in user:  # Check if 'email' exists in the user data
             raise HTTPException(status_code=401, detail="Invalid credentials")
