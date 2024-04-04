@@ -47,14 +47,14 @@ async def get_opportunity_by_title(tenant_id: int, title: str, current_user: str
     return services.get_opportunity_by_title(tenant_id, title)
 
 @router.put(
-    "/Opportunity/{tenant_id}/id/{Opportunity_id}",
+    "/Opportunity/id/{Opportunity_id}",
     response_model=Optional[Opportunity],
     tags=["Opportunity"],
     summary="Update Opportunity by ID",
     description="Updates a Opportunity entry in the database by ID."
 )
-async def update_Opportunity(tenant_id: int, Opportunity_id: int, Opportunity: OpportunityCreate, current_user: str = Depends(get_current_user)):
-    return services.update_opportunity(tenant_id, Opportunity_id, Opportunity)
+async def update_Opportunity(Opportunity_id: int, Opportunity: OpportunityCreate, current_user: str = Depends(get_current_user)):
+    return services.update_opportunity(Opportunity_id, Opportunity)
 
 @router.delete(
     "/Opportunity/id/{Opportunity_id}",

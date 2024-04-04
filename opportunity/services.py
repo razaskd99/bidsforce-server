@@ -206,7 +206,7 @@ def get_all_opportunities(tenant_id: int) -> List[Opportunity]:
     ]
 
 
-def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: OpportunityCreate) -> Optional[Opportunity]:
+def update_opportunity(opportunity_id: int, opportunity_data: OpportunityCreate) -> Optional[Opportunity]:
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -243,7 +243,7 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
         sales_persuit_progress = %s,
         opportunity_owner = %s,
         bidding_unit = %s
-    WHERE tenant_id = %s AND opportunity_id = %s RETURNING *;
+    WHERE opportunity_id = %s RETURNING *;
     """
 
     values = (
@@ -277,8 +277,7 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
         opportunity_data.opportunity_currency,
         opportunity_data.sales_persuit_progress,
         opportunity_data.opportunity_owner,
-        opportunity_data.bidding_unit,        
-        tenant_id,
+        opportunity_data.bidding_unit,
         opportunity_id
     )
 
@@ -292,9 +291,9 @@ def update_opportunity(tenant_id: int, opportunity_id: int, opportunity_data: Op
             FROM opportunity o
             LEFT JOIN company p ON p.company_id=o.company_id
             LEFT JOIN company pp ON pp.company_id=o.customer_id
-        WHERE o.tenant_id = %s AND o.opportunity_id = %s;
+        WHERE o.opportunity_id = %s;
         """
-    cursor.execute(query, (tenant_id, opportunity_id))
+    cursor.execute(query, (opportunity_id,))
     updated_opportunity = cursor.fetchone()
 
     conn.commit()
