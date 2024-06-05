@@ -4,11 +4,9 @@ from datetime import date, datetime
 
 class PrimaryContactsCreate(BaseModel):    
     tenant_id: Optional[int]
-    company_id: Optional[int]
-    designation_id: Optional[int]
-    team_id: Optional[int]
     first_name: Optional[str]
     last_name: Optional[str]
+    job_title: Optional[str]
     manager: Optional[str]
     function_group: Optional[str]
     contact_number: Optional[str]
@@ -18,18 +16,13 @@ class PrimaryContactsCreate(BaseModel):
     work_location: Optional[str]
     profile_image: Optional[str]
     created_at: Optional[datetime]
-    company_name: Optional[str]
-    designation_title: Optional[str]
-    team_title: Optional[str]
-
-class PrimaryContactsSingleRecord(BaseModel): 
+   
+class PrimaryContactsGet(BaseModel): 
     primary_contacts_id : int   
     tenant_id: Optional[int]
-    company_id: Optional[int]
-    designation_id: Optional[int]
-    team_id: Optional[int]
     first_name: Optional[str]
     last_name: Optional[str]
+    job_title: Optional[str]
     manager: Optional[str]
     function_group: Optional[str]
     contact_number: Optional[str]

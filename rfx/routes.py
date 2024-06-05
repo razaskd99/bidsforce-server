@@ -134,3 +134,18 @@ async def edit_status(rfx_id: int, rfx_data: RfxUpdateStatus, current_user: str 
 )
 def delete_rfx(rfx_id: int, current_user: str = Depends(get_current_user)):
     return services.delete_rfx(rfx_id)
+
+
+# Get an RFX by ID
+@router.get(
+    "/rfx/opportunity-id/{opportunity_id}",
+    response_model=List[Rfx],
+    tags=["RFX"],
+    summary="Get an RFX by Opportunity ID",
+    description="Retrieve an RFX record by Opportunity ID."
+)
+def get_rfx_by_opportunity_id_api(opportunity_id: int, current_user: str = Depends(get_current_user)):
+    rfx = services.get_rfx_by_opportunity_id(opportunity_id)
+    if rfx is None:
+        raise HTTPException(status_code=404, detail="RFX not found")
+    return rfx
