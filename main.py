@@ -13,7 +13,7 @@ from admin.control_panel.routes import router as control_panel_router
 # from admin.customer.routers import router as customer_router
 
 from auth.routes import router as auth_router 
-from mailer.routes import router as mailer_router
+#from mailer.routes import router as mailer_router
 
 from contacts_team.routes import router as contacts_team_router
 from persona.routes import router as persona_router
@@ -134,7 +134,7 @@ async def check_server():
     return {"message": os.environ}
 
 app.include_router(auth_router, prefix="/auth")
-app.include_router(mailer_router, prefix="/mailer")
+#app.include_router(mailer_router, prefix="/mailer")
 
 
 app.include_router(contacts_team_router, prefix="/contacts_team")
