@@ -44,14 +44,15 @@ def create_account_type(item_form_data: AccountTypeCreate) -> AccountType:
 def get_all_account_type(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
-    searchTerm = '%' + searchTerm.lower() + '%'
-
+    
     if searchTerm:
+        searchTerm = '%' + searchTerm.lower() + '%'
         query = """
             SELECT * FROM account_type WHERE tenant_id = %s AND lower(type_name) LIKE %s 
             ORDER BY created_at DESC 
+            OFFSET %s LIMIT %s;
             """
-        cursor.execute(query,(tenant_id, searchTerm.lower()))
+        cursor.execute(query,(tenant_id, searchTerm, offset, limit))
         account_types = cursor.fetchall()
     else:
         query = """
@@ -59,7 +60,7 @@ def get_all_account_type(tenant_id: int, searchTerm: str, offset: int, limit: in
             ORDER BY created_at DESC
             OFFSET %s LIMIT %s;
             """
-        cursor.execute(query,(tenant_id,  offset, limit))
+        cursor.execute(query,(tenant_id, offset, limit))
         account_types = cursor.fetchall()
         
     # Query to get total count without offset and limit
