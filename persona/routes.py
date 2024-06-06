@@ -17,9 +17,9 @@ router = APIRouter()
 async def add_persona(bid_stage_data: PersonaCreate, current_user: str = Depends(get_current_user)):
     return create_persona(bid_stage_data)
 
-@router.get("/persona/tenant/{tenant_id}", response_model=List[Persona], tags=["Persona"], summary="Get All Persona", description="This method will return all Persona")
-async def list_persona(tenant_id: int,current_user: str = Depends(get_current_user)):
-    list_all_persona = get_all_persona(tenant_id)
+@router.get("/persona/tenant/{tenant_id}", tags=["Persona"], summary="Get All Persona", description="This method will return all Persona")
+async def list_persona(tenant_id: int,  searchTerm: str, offset: int, limit: int, current_user: str = Depends(get_current_user)):
+    list_all_persona = get_all_persona(tenant_id,  searchTerm, offset, limit)
     if not list_all_persona:
         raise HTTPException(status_code=404, detail="Persona not found")
     return list_all_persona

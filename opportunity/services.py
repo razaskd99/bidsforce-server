@@ -115,7 +115,7 @@ def create_opportunity(opportunity_data: OpportunityCreate) -> Optional[Opportun
 def get_all_opportunities(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
-    print(searchTerm)
+    
     if searchTerm:
         searchTerm = '%' + searchTerm.lower() + '%'
         query = """

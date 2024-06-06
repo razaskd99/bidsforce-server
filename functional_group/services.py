@@ -44,22 +44,40 @@ def create_functional_group(item_form_data: FunctionalGroupCreate) -> Functional
         raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
 
 
-def get_all_functional_group(tenant_id: int) -> List[FunctionalGroup]:
+def get_all_functional_group(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    if searchTerm:
+        searchTerm = '%' + searchTerm.lower() + '%'
+        query = """
+            SELECT * FROM functional_group             
+            WHERE tenant_id = %s AND lower(title) LIKE %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, searchTerm, offset, limit))
+        query_all_items = cursor.fetchall()
+    else:
+        searchTerm = '%' + searchTerm.lower() + '%'
+        query = """
+            SELECT * FROM functional_group             
+            WHERE tenant_id = %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, offset, limit))
+        query_all_items = cursor.fetchall()
 
-    query = """
-        SELECT * FROM functional_group              
-        WHERE tenant_id = %s 
-        ORDER BY created_at DESC;
-        """
-
-    cursor.execute(query,(tenant_id, ))
-    query_all_items = cursor.fetchall()
-
+    # Query to get total count without offset and limit
+    query_total_count = "SELECT COUNT(*) FROM functional_group WHERE tenant_id = %s;"
+    cursor.execute(query_total_count, (tenant_id, ))
+    total_count = cursor.fetchone()    
+    
     conn.close()
     if query_all_items:
-        return [
+        return {
+            "data": [
             FunctionalGroup(
                 id=row[0],
                 tenant_id=row[1],
@@ -68,7 +86,9 @@ def get_all_functional_group(tenant_id: int) -> List[FunctionalGroup]:
                 created_at=row[4]
             )
             for row in query_all_items
-        ]
+        ],
+        "total_count": total_count
+        }
     else:
         None
 

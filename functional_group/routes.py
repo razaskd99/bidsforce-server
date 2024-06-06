@@ -17,9 +17,9 @@ router = APIRouter()
 async def add_functional_group(bid_stage_data: FunctionalGroupCreate, current_user: str = Depends(get_current_user)):
     return create_functional_group(bid_stage_data)
 
-@router.get("/functional_group/tenant/{tenant_id}", response_model=List[FunctionalGroup], tags=["Functional Group (Users Prereq)"], summary="Get All Functional Group", description="This method will return all Functional Group")
-async def list_functional_group(tenant_id: int,current_user: str = Depends(get_current_user)):
-    return_items = get_all_functional_group(tenant_id)
+@router.get("/functional_group/tenant/{tenant_id}", tags=["Functional Group (Users Prereq)"], summary="Get All Functional Group", description="This method will return all Functional Group")
+async def list_functional_group(tenant_id: int, searchTerm: str, offset: int, limit: int, current_user: str = Depends(get_current_user)):
+    return_items = get_all_functional_group(tenant_id, searchTerm, offset, limit)
     if not return_items:
         raise HTTPException(status_code=404, detail="Functional Group not found")
     return return_items

@@ -47,31 +47,51 @@ def create_persona(item_form_data: PersonaCreate) -> Persona:
         raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
 
 
-def get_all_persona(tenant_id: int) -> List[Persona]:
+def get_all_persona(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = """
-        SELECT * FROM persona              
-        WHERE tenant_id = %s ;
-        """
-
-    cursor.execute(query,(tenant_id, ))
-    query_all_items = cursor.fetchall()
-
-    conn.close()
+    if searchTerm:
+        searchTerm = '%' + searchTerm.lower() + '%'
+        query = """
+            SELECT * FROM persona              
+                WHERE tenant_id = %s AND lower(persona_role) LIKE %s
+            ORDER BY created_on DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, searchTerm, offset, limit))
+        query_all_items = cursor.fetchall()
+    else:
+        query = """
+            SELECT * FROM persona              
+                WHERE tenant_id = %s 
+            ORDER BY created_on DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, offset, limit))
+        query_all_items = cursor.fetchall()
+        
+    # Query to get total count without offset and limit
+    query_total_count = "SELECT COUNT(*) FROM persona WHERE tenant_id = %s;"
+    cursor.execute(query_total_count, (tenant_id, ))
+    total_count = cursor.fetchone()
+    conn.close()    
+    
     if query_all_items:
-        return [
-            Persona(
-                persona_id=row[0],
-                tenant_id=row[1],
-                persona_role=row[2],
-                description=row[3],
-                is_active=row[4],
-                created_on=row[5]
-            )
-            for row in query_all_items
-        ]
+        return {
+            "data": [
+                Persona(
+                    persona_id=row[0],
+                    tenant_id=row[1],
+                    persona_role=row[2],
+                    description=row[3],
+                    is_active=row[4],
+                    created_on=row[5]
+                )
+                for row in query_all_items
+            ],
+            "total_count": total_count
+        }
     else:
         None
 
