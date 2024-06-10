@@ -14,7 +14,8 @@ def create_bid_validity(item_form_data: BidValidityCreate) -> BidValidity:
         tenant_id,
         title,
         is_active,
-        alias
+        created_at 
+
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
 
@@ -22,7 +23,8 @@ def create_bid_validity(item_form_data: BidValidityCreate) -> BidValidity:
         item_form_data.tenant_id,
         item_form_data.title,
         item_form_data.is_active,
-        item_form_data.alias
+        item_form_data.created_at 
+
     )
 
     cursor.execute(query, values)
@@ -38,36 +40,56 @@ def create_bid_validity(item_form_data: BidValidityCreate) -> BidValidity:
             tenant_id=new_item[1],
             title=new_item[2],
             is_active=new_item[3],
-            alias=new_item[4]
+            created_at=new_item[4]
         )
     else:
         raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
 
 
-def get_all_bid_validity(tenant_id: int) -> List[BidValidity]:
+def get_all_bid_validity(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
+    
+    if searchTerm:
+        searchTerm = '%' + searchTerm.lower() + '%'
+        query = """
+            SELECT * FROM bid_validity             
+            WHERE tenant_id = %s AND lower(title) LIKE %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, searchTerm, offset, limit))
+        query_all_items = cursor.fetchall()
+    else:
+        query = """
+            SELECT * FROM bid_validity             
+                WHERE tenant_id = %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, offset, limit))
+        query_all_items = cursor.fetchall()
 
-    query = """
-        SELECT * FROM bid_validity              
-        WHERE tenant_id = %s ;
-        """
-
-    cursor.execute(query,(tenant_id, ))
-    query_all_items = cursor.fetchall()
-
+    # Query to get total count without offset and limit
+    query_total_count = "SELECT COUNT(*) FROM bid_validity WHERE tenant_id = %s;"
+    cursor.execute(query_total_count, (tenant_id, ))
+    total_count = cursor.fetchone()    
     conn.close()
+    
     if query_all_items:
-        return [
-            BidValidity(
-                bid_validity_id=row[0],
-                tenant_id=row[1],
-                title=row[2],
-                is_active=row[3],
-                alias=row[4]
-            )
-            for row in query_all_items
-        ]
+        return {
+            "data": [
+                BidValidity(
+                    bid_validity_id=row[0],
+                    tenant_id=row[1],
+                    title=row[2],
+                    is_active=row[3],
+                    created_at=row[4]
+                )
+                for row in query_all_items
+            ],
+            "total_count": total_count
+        }
     else:
         None
 
@@ -79,15 +101,13 @@ def update_bid_validity(bid_validity_id: int,  item_form_data: BidValidityCreate
     query = """
     UPDATE bid_validity SET 
         title = %s,
-        is_active = %s,
-        alias = %s
+        is_active = %s
     WHERE bid_validity_id = %s RETURNING *;
     """
 
     values = (
         item_form_data.title,
         item_form_data.is_active,
-        item_form_data.alias,
         bid_validity_id
     )
 
@@ -104,7 +124,7 @@ def update_bid_validity(bid_validity_id: int,  item_form_data: BidValidityCreate
             tenant_id=updated_itemm[1],
             title=updated_itemm[2],
             is_active=updated_itemm[3],
-            alias=updated_itemm[4]
+            created_at=updated_itemm[4]
         )
     else:
         raise HTTPException(status_code=404, detail="Bid Validity update failed")
@@ -160,7 +180,7 @@ def get_bid_validity_by_id(bid_validity_id: int) -> Optional[BidValidity]:
                 tenant_id=get_all_items[1],
                 title=get_all_items[2],
                 is_active=get_all_items[3],
-                alias=get_all_items[4]
+                created_at=get_all_items[4]
             )
     else:
         return None
@@ -206,7 +226,7 @@ def get_all_active_bid_validity( tenant_id: int) -> List[BidValidity]:
                 tenant_id=row[1],
                 title=row[2],
                 is_active=row[3],
-                alias=row[4]
+                created_at =row[4]
             )
             for row in all_records
         ]
@@ -214,26 +234,3 @@ def get_all_active_bid_validity( tenant_id: int) -> List[BidValidity]:
         return None
     
 
-def get_all_bid_validity_by_alias( tenant_id: int, alias: str) -> Optional[BidValidity]:
-    conn = get_db_connection()
-    cursor = conn.cursor()
-
-    query = "SELECT * FROM bid_validity WHERE tenant_id = %s AND alias = %s;"
-
-    cursor.execute(query, (tenant_id, alias,))
-    all_records = cursor.fetchall()
-
-    conn.close()
-    if all_records:
-        return [
-            BidValidity (
-                bid_validity_id=row[0],
-                tenant_id=row[1],
-                title=row[2],
-                is_active=row[3],
-                alias=row[4]
-            )
-            for row in all_records
-        ]
-    else:
-        return None

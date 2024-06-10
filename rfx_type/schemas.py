@@ -6,7 +6,7 @@ class RfxTypeCreate(BaseModel):
     tenant_id: int
     title: Optional[str]
     is_active: Optional[bool] = True
-    alias: Optional[str]
+    created_at : datetime
 
 class RfxType(RfxTypeCreate):
     rfx_type_id : int

@@ -13,7 +13,7 @@ router = APIRouter()
 
 
 
-@router.post("/signup", response_model=UserOut, tags=["auth"] )
+@router.post("/signup", tags=["auth"] )
 async def signup(user_data: UserIn):
     return create_user(user_data)
 

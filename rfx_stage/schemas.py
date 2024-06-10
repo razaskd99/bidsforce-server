@@ -6,7 +6,7 @@ class RfxStageCreate(BaseModel):
     tenant_id: int
     title: Optional[str]
     is_active: Optional[bool] = True
-    alias: Optional[str]
+    created_at : datetime
 
 class RfxStage(RfxStageCreate):
     rfx_stage_id : int

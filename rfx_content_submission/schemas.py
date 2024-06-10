@@ -6,7 +6,7 @@ class RfxContentSubCreate(BaseModel):
     tenant_id: int
     title: Optional[str]
     is_active: Optional[bool] = True
-    alias: Optional[str]
+    created_at : datetime
 
 class RfxContentSub(RfxContentSubCreate):
     rfx_content_submission_id : int

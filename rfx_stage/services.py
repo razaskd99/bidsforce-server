@@ -14,7 +14,7 @@ def create_rfx_stage(item_form_data: RfxStageCreate) -> RfxStage:
         tenant_id,
         title,
         is_active,
-        alias
+        created_at
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
 
@@ -22,7 +22,7 @@ def create_rfx_stage(item_form_data: RfxStageCreate) -> RfxStage:
         item_form_data.tenant_id,
         item_form_data.title,
         item_form_data.is_active,
-        item_form_data.alias
+        item_form_data.created_at
     )
 
     cursor.execute(query, values)
@@ -38,36 +38,56 @@ def create_rfx_stage(item_form_data: RfxStageCreate) -> RfxStage:
             tenant_id=new_item[1],
             title=new_item[2],
             is_active=new_item[3],
-            alias=new_item[4]
+            created_at=new_item[4]
         )
     else:
-        raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
+        raise HTTPException(status_code=404, detail="RFx Stage Detail creation failed")
 
 
-def get_all_rfx_stage(tenant_id: int) -> List[RfxStage]:
+def get_all_rfx_stage(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()
 
-    query = """
-        SELECT * FROM rfx_stage              
-        WHERE tenant_id = %s;
-        """
+    if searchTerm:
+        searchTerm = '%' + searchTerm.lower() + '%'
+        query = """
+            SELECT * FROM rfx_stage             
+            WHERE tenant_id = %s AND lower(title) LIKE %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, searchTerm, offset, limit))
+        query_all_items = cursor.fetchall()
+    else:
+        query = """
+            SELECT * FROM rfx_stage             
+                WHERE tenant_id = %s
+            ORDER BY created_at DESC
+            OFFSET %s LIMIT %s;
+            """
+        cursor.execute(query,(tenant_id, offset, limit))
+        query_all_items = cursor.fetchall()
 
-    cursor.execute(query,(tenant_id, ))
-    query_all_items = cursor.fetchall()
-
+    # Query to get total count without offset and limit
+    query_total_count = "SELECT COUNT(*) FROM rfx_stage WHERE tenant_id = %s;"
+    cursor.execute(query_total_count, (tenant_id, ))
+    total_count = cursor.fetchone()    
     conn.close()
+    
     if query_all_items:
-        return [
-            RfxStage(
-                rfx_stage_id=row[0],
-                tenant_id=row[1],
-                title=row[2],
-                is_active=row[3],
-                alias=row[4]
-            )
-            for row in query_all_items
-        ]
+        return {
+            "data": [
+                RfxStage(
+                    rfx_stage_id=row[0],
+                    tenant_id=row[1],
+                    title=row[2],
+                    is_active=row[3],
+                    created_at=row[4]
+                )
+                for row in query_all_items
+            ],
+            "total_count": total_count
+        }
     else:
         None
 
@@ -79,15 +99,13 @@ def update_rfx_stage(rfx_stage_id: int,  item_form_data: RfxStageCreate) -> Opti
     query = """
     UPDATE rfx_stage SET 
         title = %s,
-        is_active = %s,
-        alias = %s
+        is_active = %s
     WHERE rfx_stage_id = %s RETURNING *;
     """
 
     values = (
         item_form_data.title,
         item_form_data.is_active,
-        item_form_data.alias,
         rfx_stage_id
     )
 
@@ -103,11 +121,11 @@ def update_rfx_stage(rfx_stage_id: int,  item_form_data: RfxStageCreate) -> Opti
             rfx_stage_id=updated_itemm[0],
             tenant_id=updated_itemm[1],
             title=updated_itemm[2],
-            is_active=updated_itemm[3],
-            alias=updated_itemm[4]
+            is_active=updated_itemm[3], 
+            created_at=updated_itemm[4]
         )
     else:
-        raise HTTPException(status_code=404, detail="Bid Validity update failed")
+        raise HTTPException(status_code=404, detail="RFx Stage update failed")
 
 
 def delete_rfx_stage(rfx_stage_id: int) -> bool:
@@ -163,7 +181,7 @@ def get_rfx_stage_by_id(rfx_stage_id: int) -> List[RfxStage]:
                 tenant_id=row[1],
                 title=row[2],
                 is_active=row[3],
-                alias=row[4]
+                created_at=row[4]
             )
             for row in get_all_items
         ]
@@ -191,7 +209,7 @@ def get_rfx_stage_by_name(tenant_id: int, title : str) -> List[RfxStage]:
                 tenant_id=row[1],
                 title=row[2],
                 is_active=row[3],
-                alias=row[4]
+                created_at=row[4]
             )
             for row in get_item
         ]
@@ -218,7 +236,7 @@ def get_all_active_rfx_stage( tenant_id: int) -> List[RfxStage]:
                 tenant_id=row[1],
                 title=row[2],
                 is_active=row[3],
-                alias=row[4]
+                created_at=row[4]
             )
             for row in all_records
         ]
@@ -226,15 +244,15 @@ def get_all_active_rfx_stage( tenant_id: int) -> List[RfxStage]:
         return None
     
 
-def get_all_rfx_stage_by_alias( tenant_id: int, alias: str) -> List[RfxStage]:
+def get_all_rfx_stage_by_created_at( tenant_id: int, created_at: str) -> List[RfxStage]:
     conn = get_db_connection()
     cursor = conn.cursor()
 
     query = """
-    SELECT * FROM rfx_stage WHERE tenant_id = %s AND lower(alias) = %s;
+    SELECT * FROM rfx_stage WHERE tenant_id = %s AND lower(created_at) = %s;
     """
 
-    cursor.execute(query, (tenant_id, alias.lower()))
+    cursor.execute(query, (tenant_id, created_at.lower()))
     all_records = cursor.fetchall()
 
     conn.close()
@@ -245,7 +263,7 @@ def get_all_rfx_stage_by_alias( tenant_id: int, alias: str) -> List[RfxStage]:
                 tenant_id=row[1],
                 title=row[2],
                 is_active=row[3],
-                alias=row[4]
+                created_at=row[4]
             )
             for row in all_records
         ]

@@ -9,7 +9,6 @@ from rfx_stage.services import (
     get_rfx_stage_by_id,
     get_rfx_stage_by_name,
     get_all_active_rfx_stage,
-    get_all_rfx_stage_by_alias,
     delete_all_rfx_stage
 )
 from auth.services import get_current_user
@@ -20,9 +19,9 @@ router = APIRouter()
 async def add_rfx_stage(bid_stage_data: RfxStageCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_stage(bid_stage_data)
 
-@router.get("/rfx_stage/tenant/{tenant_id}", response_model=List[RfxStage], tags=["Rfx Stage"], summary="Get All Rfx Stage", description="This method will return all Rfx Stage")
-async def list_rfx_stage(tenant_id: int,current_user: str = Depends(get_current_user)):
-    return_item = get_all_rfx_stage(tenant_id)
+@router.get("/rfx_stage/tenant/{tenant_id}", tags=["Rfx Stage"], summary="Get All Rfx Stage", description="This method will return all Rfx Stage")
+async def list_rfx_stage(tenant_id: int, searchTerm: str, offset: int, limit: int, current_user: str = Depends(get_current_user)):
+    return_item = get_all_rfx_stage(tenant_id,searchTerm, offset, limit)
     if not return_item:
         raise HTTPException(status_code=404, detail="Rfx Stage not found")
     return return_item
@@ -66,10 +65,3 @@ async def get_rfx_stage_by_active_api(tenant_id: int,current_user: str = Depends
         raise HTTPException(status_code=404, detail="Rfx Stage not found")
     return return_item
 
-
-@router.get("/rfx_stage/tenant/{tenant_id}/alias/{alias}", response_model=List[RfxStage], tags=["Rfx Stage"], summary="Get Rfx Stage by Tenant ID and Alias", description="This method will return all Rfx Stage by Tenant ID and Alias")
-async def get_rfx_stage_by_alias_api(tenant_id: int, alias: str, current_user: str = Depends(get_current_user)):
-    return_item = get_all_rfx_stage_by_alias(tenant_id, alias)
-    if not return_item:
-        raise HTTPException(status_code=404, detail="Rfx Stage not found")
-    return return_item

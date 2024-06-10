@@ -8,7 +8,6 @@ from bid_validity.services import (
     delete_bid_validity,
     get_bid_validity_by_id,
     get_all_active_bid_validity,
-    get_all_bid_validity_by_alias,
     delete_all_bid_validity
 )
 from auth.services import get_current_user
@@ -19,9 +18,9 @@ router = APIRouter()
 async def add_bid_validity(bid_stage_data: BidValidityCreate, current_user: str = Depends(get_current_user)):
     return create_bid_validity(bid_stage_data)
 
-@router.get("/bid_validity/tenant/{tenant_id}", response_model=List[BidValidity], tags=["Bid Validity"], summary="Get All Bid Validity", description="This method will return all Bid Validity")
-async def list_bid_validity(tenant_id: int,current_user: str = Depends(get_current_user)):
-    return get_all_bid_validity(tenant_id)
+@router.get("/bid_validity/tenant/{tenant_id}", tags=["Bid Validity"], summary="Get All Bid Validity", description="This method will return all Bid Validity")
+async def list_bid_validity(tenant_id: int, searchTerm: str, offset: int, limit: int, current_user: str = Depends(get_current_user)):
+    return get_all_bid_validity(tenant_id, searchTerm, offset, limit)
 
 @router.put("/bid_validity/id/{bid_validity_id}", response_model=BidValidity, tags=["Bid Validity"], summary="Update an Bid Validity", description="This method will update an existing Bid Validity")
 async def edit_bid_validity(bid_validity_id: int,  bid_stage_data: BidValidityCreate, current_user: str = Depends(get_current_user)):
@@ -57,9 +56,3 @@ async def get_bid_validity_by_active_api(tenant_id: int, current_user: str = Dep
     return return_item
 
 
-@router.get("/bid_validity/tenant/{tenant_id}/alias/{alias}", response_model=List[BidValidity], tags=["Bid Validity"], summary="Get Active Bid Validity by Tenant ID", description="This method will return all bid Validity by Tenant ID")
-async def get_bid_validity_by_alias_api(tenant_id: int, alias: str, current_user: str = Depends(get_current_user)):
-    return_item = get_all_bid_validity_by_alias(tenant_id, alias)
-    if not return_item:
-        raise HTTPException(status_code=404, detail="Bid Validity not found")
-    return return_item

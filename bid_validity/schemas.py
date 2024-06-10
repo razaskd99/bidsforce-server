@@ -6,7 +6,7 @@ class BidValidityCreate(BaseModel):
     tenant_id: int
     title: Optional[str]
     is_active: Optional[bool] = True
-    alias: Optional[str]
+    created_at : datetime
 
 class BidValidity(BidValidityCreate):
     bid_validity_id : int

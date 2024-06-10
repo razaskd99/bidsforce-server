@@ -8,6 +8,8 @@ from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import ExpiredSignatureError, InvalidTokenError
 from typing import Optional, Union, List
 from datetime import date, datetime
+import json, random
+from psycopg2 import errors as psycopg_errors
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
@@ -30,7 +32,6 @@ def create_user(user_data: UserIn):
     cursor = conn.cursor()
 
     hashed_password = hash_password(user_data.password)
-
     query = """
     INSERT INTO users (tenant_id, job_title, company_name, employee_number, user_name, email, password, password_salt, 
         first_name, middle_name, last_name, user_role, contact_number, profile_image, manager, functional_group, 
@@ -43,58 +44,44 @@ def create_user(user_data: UserIn):
         last_login_at, updated_at, created_at, city, state, currency_code, address, bio, tags;
     """
 
-    cursor.execute(query, (
-        user_data.tenant_id, user_data.job_title, user_data.company_name, user_data.employee_number,
-        user_data.user_name, user_data.email, hashed_password, user_data.password_salt, user_data.first_name,
-        user_data.middle_name, user_data.last_name, user_data.user_role, user_data.contact_number,
-        user_data.profile_image, user_data.manager, user_data.functional_group, user_data.time_zone,
-        user_data.work_location, user_data.work_hours_start, user_data.work_hours_end, user_data.active, 
-        user_data.verified, user_data.registration_date, user_data.last_login_at, user_data.updated_at, user_data.created_at, 
-        user_data.city, user_data.state, user_data.currency_code, user_data.security_code, user_data.address, '', ''        
-    ))
+    try:
+        cursor.execute(query, (
+            user_data.tenant_id, user_data.job_title, user_data.company_name, user_data.employee_number,
+            user_data.user_name, user_data.email, hashed_password, user_data.password_salt, user_data.first_name,
+            user_data.middle_name, user_data.last_name, user_data.user_role, user_data.contact_number,
+            user_data.profile_image, user_data.manager, user_data.functional_group, user_data.time_zone,
+            user_data.work_location, user_data.work_hours_start, user_data.work_hours_end, user_data.active, 
+            user_data.verified, user_data.registration_date, user_data.last_login_at, user_data.updated_at, user_data.created_at, 
+            user_data.city, user_data.state, user_data.currency_code, user_data.security_code, user_data.address, '', ''        
+        ))
+        user = cursor.fetchone()
+        conn.commit()
+        conn.close()
+        
+        if user:            
+            error_response = {"msg": "User Created Sucessfully", "code": 200}
+            return json.dumps(error_response)
+        else:
+            custom_message = "User email already exists"
+            custom_code = 400
+            error_response = {"msg": custom_message, "code": custom_code}
+            return json.dumps(error_response)
+        
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        custom_message = "User email already exists"
+        custom_code = 409
+        error_response = {"msg": custom_message, "code": custom_code}
+        return json.dumps(error_response)
 
-    user = cursor.fetchone()
-    conn.commit()
-    conn.close()
+    except Exception as e:
+        # Handle other psycopg2 errors
+        error_message = f"Database error: {e}"
+        error_code = 500
+        error_response = {"msg": error_message, "code": error_code}
+        return json.dumps(error_response)
 
-    if user:
-        return UserOut(
-            user_id=user[0],
-            tenant_id=user[1],
-            job_title=user[2],
-            company_name=user[3],
-            employee_number=user[4],
-            user_name=user[5],
-            email=user[6],
-            first_name=user[7],
-            middle_name=user[8],
-            last_name=user[9],
-            user_role=user[10],
-            contact_number=user[11],
-            profile_image=user[12],
-            manager=user[13],
-            functional_group=user[14],
-            time_zone=user[15],
-            work_location=user[16],
-            work_hours_start=user[17],
-            work_hours_end=user[18],            
-            active=user[19],
-            verified=user[20],
-            registration_date=user[21],
-            last_login_at=user[22],
-            updated_at=user[23],
-            created_at=user[24],
-            # optional fields
-            city=user[25],
-            state=user[26],
-            currency_code=user[27],
-            address=user[28],
-            bio=user[29],
-            tags=user[30]            
-        )
-    else:
-        raise HTTPException(status_code=500, detail="User creation failed")
-    
+        
 
 def update_user(user_id: int, user_data: UserIn):
     conn = get_db_connection()
