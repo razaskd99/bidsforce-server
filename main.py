@@ -31,6 +31,7 @@ from opp_committed_for_sales_budget.routes import router as opp_committed_for_sa
 from bidding_unit.routes import router as bidding_unit_router
 from project_type.routes import router as project_type_router
 from opportunity_type.routes import router as opportunity_type_router
+from opportunity_industry.routes import router as opportunity_industry_router
 
 
 
@@ -158,6 +159,7 @@ app.include_router(opp_committed_for_sales_budget_router, prefix="/opp_committed
 app.include_router(bidding_unit_router, prefix="/bidding_unit")
 app.include_router(project_type_router, prefix="/project_type")
 app.include_router(opportunity_type_router, prefix="/opportunity_type")
+app.include_router(opportunity_industry_router, prefix="/opportunity_industry")
 
 
 app.include_router(docvalt_router, prefix="/docvalt")

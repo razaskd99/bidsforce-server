@@ -2,9 +2,12 @@ from typing import List, Optional
 from fastapi import HTTPException
 from db.connection import get_db_connection
 from rfx_stage.schemas import RfxStageCreate, RfxStage
+import psycopg2
+import json, random
+from psycopg2 import errors as psycopg_errors
 
 
-def create_rfx_stage(item_form_data: RfxStageCreate) -> RfxStage:
+def create_rfx_stage(item_form_data: RfxStageCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -18,30 +21,47 @@ def create_rfx_stage(item_form_data: RfxStageCreate) -> RfxStage:
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
 
-    values = (
-        item_form_data.tenant_id,
-        item_form_data.title,
-        item_form_data.is_active,
-        item_form_data.created_at
-    )
-
-    cursor.execute(query, values)
-    new_item = cursor.fetchone()
-
-   
-    conn.commit()
-    conn.close()
-
-    if new_item:
-        return RfxStage(
-            rfx_stage_id=new_item[0],
-            tenant_id=new_item[1],
-            title=new_item[2],
-            is_active=new_item[3],
-            created_at=new_item[4]
+    try:
+        values = (
+            item_form_data.tenant_id,
+            item_form_data.title,
+            item_form_data.is_active,
+            item_form_data.created_at
         )
-    else:
-        raise HTTPException(status_code=404, detail="RFx Stage Detail creation failed")
+
+        cursor.execute(query, values)
+        new_item = cursor.fetchone()
+
+    
+        conn.commit()
+        conn.close()
+
+        if new_item:
+            data ={
+                "rfx_stage_id" : new_item[0],
+                "tenant_id" : new_item[1],
+                "title" : new_item[2],
+            }
+            error_response = {"msg": "RFx Stage created sucessfully", "code": 201, "data": data}
+            return json.dumps(error_response)
+        else:
+            error_response = {"msg": "RFx Stage already exists", "code": 400}
+            return json.dumps(error_response)
+
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        error_response = {"msg": "RFx Stage already exists", "code": 409}
+        return json.dumps(error_response)
+
+    except psycopg2.Error as e:
+        # Handle other psycopg2 errors       
+        error_response = {"msg": f"Database error: {e}", "code": 500}
+        return json.dumps(error_response)
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        error_response = {"msg": f"Unexpected error: {e}", "code": 500}
+        return json.dumps(error_response)
 
 
 def get_all_rfx_stage(tenant_id: int, searchTerm: str, offset: int, limit: int) :
@@ -161,7 +181,7 @@ def delete_all_rfx_stage(tenant_id: int) -> bool:
         return False
 
 
-def get_rfx_stage_by_id(rfx_stage_id: int) -> List[RfxStage]:
+def get_rfx_stage_by_id(rfx_stage_id: int) -> Optional[RfxStage]:
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -170,21 +190,19 @@ def get_rfx_stage_by_id(rfx_stage_id: int) -> List[RfxStage]:
     """
 
     cursor.execute(query, (rfx_stage_id,))
-    get_all_items = cursor.fetchall()
+    get_all_items = cursor.fetchone()
 
     conn.close()
 
     if get_all_items:
-        return [
-            RfxStage (
-                rfx_stage_id=row[0],
-                tenant_id=row[1],
-                title=row[2],
-                is_active=row[3],
-                created_at=row[4]
-            )
-            for row in get_all_items
-        ]
+        return RfxStage (
+                    rfx_stage_id=get_all_items[0],
+                    tenant_id=get_all_items[1],
+                    title=get_all_items[2],
+                    is_active=get_all_items[3],
+                    created_at=get_all_items[4]
+                )           
+        
     else:
         return None
 
@@ -244,28 +262,4 @@ def get_all_active_rfx_stage( tenant_id: int) -> List[RfxStage]:
         return None
     
 
-def get_all_rfx_stage_by_created_at( tenant_id: int, created_at: str) -> List[RfxStage]:
-    conn = get_db_connection()
-    cursor = conn.cursor()
 
-    query = """
-    SELECT * FROM rfx_stage WHERE tenant_id = %s AND lower(created_at) = %s;
-    """
-
-    cursor.execute(query, (tenant_id, created_at.lower()))
-    all_records = cursor.fetchall()
-
-    conn.close()
-    if all_records:
-        return [
-            RfxStage (
-                rfx_stage_id=row[0],
-                tenant_id=row[1],
-                title=row[2],
-                is_active=row[3],
-                created_at=row[4]
-            )
-            for row in all_records
-        ]
-    else:
-        return None

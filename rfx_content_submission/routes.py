@@ -14,7 +14,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/rfx_content_submission/", response_model=RfxContentSub, tags=["RFx Content Submission"], summary="Create a RFx Content Submission", description="This method will create a new RFx Content Submission")
+@router.post("/rfx_content_submission/", tags=["RFx Content Submission"], summary="Create a RFx Content Submission", description="This method will create a new RFx Content Submission")
 async def add_rfx_content_submission(rfx_content_sub_data: RfxContentSubCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_content_submission(rfx_content_sub_data)
 

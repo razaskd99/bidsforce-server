@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/persona/", response_model=Persona, tags=["Persona"], summary="Create a Persona", description="This method will create a new Persona")
+@router.post("/persona/", tags=["Persona"], summary="Create a Persona", description="This method will create a new Persona")
 async def add_persona(bid_stage_data: PersonaCreate, current_user: str = Depends(get_current_user)):
     return create_persona(bid_stage_data)
 

@@ -2,9 +2,12 @@ from typing import List, Optional
 from fastapi import HTTPException
 from db.connection import get_db_connection
 from functional_group.schemas import FunctionalGroupCreate, FunctionalGroup
+import psycopg2
+import json, random
+from psycopg2 import errors as psycopg_errors
 
 
-def create_functional_group(item_form_data: FunctionalGroupCreate) -> FunctionalGroup:
+def create_functional_group(item_form_data: FunctionalGroupCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -17,31 +20,44 @@ def create_functional_group(item_form_data: FunctionalGroupCreate) -> Functional
         created_at
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
-
-    values = (
-        item_form_data.tenant_id,
-        item_form_data.title,
-        item_form_data.active,
-        item_form_data.created_at
-    )
-
-    cursor.execute(query, values)
-    new_item = cursor.fetchone()
-
-   
-    conn.commit()
-    conn.close()
-
-    if new_item:
-        return FunctionalGroup(
-            id=new_item[0],
-            tenant_id=new_item[1],
-            title=new_item[2],
-            active=new_item[3],
-            created_at=new_item[4]
+    try:
+        values = (
+            item_form_data.tenant_id,
+            item_form_data.title,
+            item_form_data.active,
+            item_form_data.created_at
         )
-    else:
-        raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
+        cursor.execute(query, values)
+        new_item = cursor.fetchone()
+    
+        conn.commit()
+        conn.close()
+
+        if new_item:
+            data = {
+                "id" : new_item[0],
+                "tenant_id" : new_item[1],
+                "title" : new_item[2],
+            }
+            error_response = {"msg": "Functional Group created sucessfully", "code": 201, "data": data}
+            return json.dumps(error_response)
+        else:
+            error_response = {"msg": "Functional Group already exists", "code": 400}
+            return json.dumps(error_response)
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        error_response = {"msg": "Functional Group already exists", "code": 409}
+        return json.dumps(error_response)
+
+    except psycopg2.Error as e:
+        # Handle other psycopg2 errors       
+        error_response = {"msg": f"Database error: {e}", "code": 500}
+        return json.dumps(error_response)
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        error_response = {"msg": f"Unexpected error: {e}", "code": 500}
+        return json.dumps(error_response)
 
 
 def get_all_functional_group(tenant_id: int, searchTerm: str, offset: int, limit: int) :

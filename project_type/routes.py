@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/project_type/", response_model=ProjectType, tags=["Project Type (OPP Prereq)"], summary="Create a Project Type", description="This method will create a new Project Type")
+@router.post("/project_type/", tags=["Project Type (OPP Prereq)"], summary="Create a Project Type", description="This method will create a new Project Type")
 async def add_project_type(project_type: ProjectTypeCreate, current_user: str = Depends(get_current_user)):
     return create_project_type(project_type)
 

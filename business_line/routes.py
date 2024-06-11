@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/business_line/", response_model=BusinessLine, tags=["Business Line (OPP Prereq)"], summary="Create a Business Line", description="This method will create a new Business Line")
+@router.post("/business_line/", tags=["Business Line (OPP Prereq)"], summary="Create a Business Line", description="This method will create a new Business Line")
 async def add_business_line(business_line: BusinessLineCreate, current_user: str = Depends(get_current_user)):
     return create_business_line(business_line)
 

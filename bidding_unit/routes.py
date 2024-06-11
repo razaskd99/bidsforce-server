@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/bidding_unit/", response_model=BiddingUnit, tags=["Bidding Unit (OPP Prereq)"], summary="Create a Bidding Unit", description="This method will create a new Bidding Unit")
+@router.post("/bidding_unit/", tags=["Bidding Unit (OPP Prereq)"], summary="Create a Bidding Unit", description="This method will create a new Bidding Unit")
 async def add_bidding_unit(bidding_unit: BiddingUnitCreate, current_user: str = Depends(get_current_user)):
     return create_bidding_unit(bidding_unit)
 

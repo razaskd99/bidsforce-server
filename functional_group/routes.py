@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/functional_group/", response_model=FunctionalGroup, tags=["Functional Group (Users Prereq)"], summary="Create a Functional Group", description="This method will create a new Functional Group")
+@router.post("/functional_group/", tags=["Functional Group (Users Prereq)"], summary="Create a Functional Group", description="This method will create a new Functional Group")
 async def add_functional_group(bid_stage_data: FunctionalGroupCreate, current_user: str = Depends(get_current_user)):
     return create_functional_group(bid_stage_data)
 

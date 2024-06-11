@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/opp_committed_for_sales_budget/", response_model=OppComittedForSalesBudget, tags=["Opp Comitted For Sales Budget (OPP Prereq)"], summary="Create a Opp Comitted For Sales Budget", description="This method will create a new Opp Comitted For Sales Budget")
+@router.post("/opp_committed_for_sales_budget/", tags=["Opp Comitted For Sales Budget (OPP Prereq)"], summary="Create a Opp Comitted For Sales Budget", description="This method will create a new Opp Comitted For Sales Budget")
 async def add_opp_committed_for_sales_budget(opp_committed_for_sales_budget: OppComittedForSalesBudgetCreate, current_user: str = Depends(get_current_user)):
     return create_opp_committed_for_sales_budget(opp_committed_for_sales_budget)
 

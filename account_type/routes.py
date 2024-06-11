@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/account_type/", response_model=AccountType, tags=["Account Type"], summary="Create Account Type", description="This method will create a new Account Type")
+@router.post("/account_type/", tags=["Account Type"], summary="Create Account Type", description="This method will create a new Account Type")
 async def add_account_type(account_type_data: AccountTypeCreate, current_user: str = Depends(get_current_user)):
     return create_account_type(account_type_data)
 

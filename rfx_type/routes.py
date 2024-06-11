@@ -15,7 +15,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/rfx_type/", response_model=RfxType, tags=["RFx Type"], summary="Create a RFx Type", description="This method will create a new RFx Type")
+@router.post("/rfx_type/", tags=["RFx Type"], summary="Create a RFx Type", description="This method will create a new RFx Type")
 async def add_rfx_type(bid_stage_data: RfxTypeCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_type(bid_stage_data)
 

@@ -59,7 +59,7 @@ def create_user(user_data: UserIn):
         conn.close()
         
         if user:            
-            error_response = {"msg": "User Created Sucessfully", "code": 200}
+            error_response = {"msg": "User Created Sucessfully", "code": 20}
             return json.dumps(error_response)
         else:
             custom_message = "User email already exists"

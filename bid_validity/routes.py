@@ -14,7 +14,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/bid_validity/", response_model=BidValidity, tags=["Bid Validity"], summary="Create a Bid Validity", description="This method will create a new Bid Validity")
+@router.post("/bid_validity/", tags=["Bid Validity"], summary="Create a Bid Validity", description="This method will create a new Bid Validity")
 async def add_bid_validity(bid_stage_data: BidValidityCreate, current_user: str = Depends(get_current_user)):
     return create_bid_validity(bid_stage_data)
 

@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/opportunity_sales_stages/", response_model=OpportunitySalesStages, tags=["Opportunity Sales Stages (OPP Prereq)"], summary="Create a Opportunity Sales Stages", description="This method will create a new Opportunity Sales Stages")
+@router.post("/opportunity_sales_stages/", tags=["Opportunity Sales Stages (OPP Prereq)"], summary="Create a Opportunity Sales Stages", description="This method will create a new Opportunity Sales Stages")
 async def add_opportunity_sales_stages(opp_sales_stages_data: OpportunitySalesStagesCreate, current_user: str = Depends(get_current_user)):
     return create_opportunity_sales_stages(opp_sales_stages_data)
 

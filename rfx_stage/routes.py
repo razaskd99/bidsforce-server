@@ -15,7 +15,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/rfx_stage/", response_model=RfxStage, tags=["Rfx Stage"], summary="Create a Rfx Stage", description="This method will create a new Rfx Stage")
+@router.post("/rfx_stage/", tags=["Rfx Stage"], summary="Create a Rfx Stage", description="This method will create a new Rfx Stage")
 async def add_rfx_stage(bid_stage_data: RfxStageCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_stage(bid_stage_data)
 
@@ -44,7 +44,7 @@ async def remove_all_rfx_stage(tenant_id: int, current_user: str = Depends(get_c
         raise HTTPException(status_code=404, detail="Bid Stage not found")
     return {"message": "Rfx Stage deleted successfully"}
 
-@router.get("/rfx_stage/id/{rfx_stage_id}", response_model=List[RfxStage], tags=["Rfx Stage"], summary="Get Rfx Stage by ID", description="This method will return Rfx Stage by ID")
+@router.get("/rfx_stage/id/{rfx_stage_id}", response_model=RfxStage, tags=["Rfx Stage"], summary="Get Rfx Stage by ID", description="This method will return Rfx Stage by ID")
 async def get_rfx_stage_by_id_api(rfx_stage_id: int, current_user: str = Depends(get_current_user)):
     return_item = get_rfx_stage_by_id(rfx_stage_id)
     if not return_item:

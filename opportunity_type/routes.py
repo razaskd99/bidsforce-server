@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/opportunity_type/", response_model=OpportunityType, tags=["Opportunity Type (OPP Prereq)"], summary="Create a Opportunity Type", description="This method will create a new Opportunity Type")
+@router.post("/opportunity_type/", tags=["Opportunity Type (OPP Prereq)"], summary="Create a Opportunity Type", description="This method will create a new Opportunity Type")
 async def add_opportunity_type(opportunity_type: OpportunityTypeCreate, current_user: str = Depends(get_current_user)):
     return create_opportunity_type(opportunity_type)
 

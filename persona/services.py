@@ -2,12 +2,14 @@ from typing import List, Optional
 from fastapi import HTTPException
 from db.connection import get_db_connection
 from persona.schemas import PersonaCreate, Persona
+import psycopg2
+import json, random
+from psycopg2 import errors as psycopg_errors
+import datetime
 
-
-def create_persona(item_form_data: PersonaCreate) -> Persona:
+def create_persona(item_form_data: PersonaCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
-
 
     query = """
     INSERT INTO persona (
@@ -19,34 +21,49 @@ def create_persona(item_form_data: PersonaCreate) -> Persona:
     ) VALUES (%s, %s, %s, %s, %s) RETURNING *;
     """
 
-    values = (
-        item_form_data.tenant_id,
-        item_form_data.persona_role,
-        item_form_data.description,
-        item_form_data.is_active,
-        item_form_data.created_on
-    )
-
-    cursor.execute(query, values)
-    new_item = cursor.fetchone()
-
-   
-    conn.commit()
-    conn.close()
-
-    if new_item:
-        return Persona(
-            persona_id=new_item[0],
-            tenant_id=new_item[1],
-            persona_role=new_item[2],
-            description=new_item[3],
-            is_active=new_item[4],
-            created_on=new_item[5]
+    try:
+        values = (
+            item_form_data.tenant_id,
+            item_form_data.persona_role,
+            item_form_data.description,
+            item_form_data.is_active,
+            item_form_data.created_on
         )
-    else:
-        raise HTTPException(status_code=404, detail="Bid Validity Detail creation failed")
+        cursor.execute(query, values)
+        new_item = cursor.fetchone()   
+        conn.commit()
+        conn.close()
+        
+        if new_item: 
+            data = {
+                    "persona_id": new_item[0],
+                    "tenant_id": new_item[1],
+                    "persona_role": new_item[2],
+                    "description":new_item[3],
+                }          
+            error_response = {"msg": "Persona created sucessfully", "code": 201, "data": data}
+            return json.dumps(error_response)
+        else:
+            error_response = {"msg": "Persona already exists", "code": 400}
+            return json.dumps(error_response)
 
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        error_response = {"msg": "Persona already exists", "code": 409}
+        return json.dumps(error_response)
 
+    except psycopg2.Error as e:
+        # Handle other psycopg2 errors       
+        error_response = {"msg": f"Database error: {e}", "code": 500}
+        return json.dumps(error_response)
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        error_response = {"msg": f"Unexpected error: {e}", "code": 500}
+        return json.dumps(error_response)
+        
+   
+    
 def get_all_persona(tenant_id: int, searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
     cursor = conn.cursor()

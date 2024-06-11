@@ -13,7 +13,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/sales_pursuit_progress/", response_model=SalesPursuitProgress, tags=["Sales Pursuit Progress (OPP Prereq)"], summary="Create a Sales Pursuit Progress", description="This method will create a new Sales Pursuit Progress")
+@router.post("/sales_pursuit_progress/", tags=["Sales Pursuit Progress (OPP Prereq)"], summary="Create a Sales Pursuit Progress", description="This method will create a new Sales Pursuit Progress")
 async def add_sales_pursuit_progress(sales_pursuit_progress: SalesPursuitProgressCreate, current_user: str = Depends(get_current_user)):
     return create_sales_pursuit_progress(sales_pursuit_progress)
 

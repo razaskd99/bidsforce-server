@@ -2,9 +2,12 @@ from typing import List, Optional
 from fastapi import HTTPException
 from db.connection import get_db_connection
 from account_type.schemas import AccountTypeCreate, AccountType
+import psycopg2
+import json, random
+from psycopg2 import errors as psycopg_errors
 
 
-def create_account_type(item_form_data: AccountTypeCreate) -> AccountType:
+def create_account_type(item_form_data: AccountTypeCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -16,29 +19,44 @@ def create_account_type(item_form_data: AccountTypeCreate) -> AccountType:
         created_at
     ) VALUES (%s, %s, %s) RETURNING *;
     """
-
-    values = (
-        item_form_data.tenant_id,
-        item_form_data.type_name,
-        item_form_data.created_at
-    )
-
-    cursor.execute(query, values)
-    new_item = cursor.fetchone()
-
-   
-    conn.commit()
-    conn.close()
-
-    if new_item:
-        return AccountType(
-            account_type_id=new_item[0],
-            tenant_id=new_item[1],
-            type_name=new_item[2],
-            created_at=new_item[3]
+    try:
+        values = (
+            item_form_data.tenant_id,
+            item_form_data.type_name,
+            item_form_data.created_at
         )
-    else:
-        raise HTTPException(status_code=404, detail="Account Type Detail creation failed")
+        cursor.execute(query, values)
+        new_item = cursor.fetchone()
+    
+        conn.commit()
+        conn.close()
+
+        if new_item:
+            data ={
+                "account_type_id" : new_item[0],
+                "tenant_id" : new_item[1],
+                "type_name" : new_item[2],
+            }
+            error_response = {"msg": "Account Type created sucessfully", "code": 201, "data": data}
+            return json.dumps(error_response)
+        else:
+            error_response = {"msg": "Account Type already exists", "code": 400}
+            return json.dumps(error_response)
+
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        error_response = {"msg": "Account Type already exists", "code": 409}
+        return json.dumps(error_response)
+
+    except psycopg2.Error as e:
+        # Handle other psycopg2 errors       
+        error_response = {"msg": f"Database error: {e}", "code": 500}
+        return json.dumps(error_response)
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        error_response = {"msg": f"Unexpected error: {e}", "code": 500}
+        return json.dumps(error_response)
 
 
 def get_all_account_type(tenant_id: int, searchTerm: str, offset: int, limit: int) :

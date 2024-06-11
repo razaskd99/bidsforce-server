@@ -14,7 +14,7 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/rfx_submission_mode/", response_model=RfxSubMode, tags=["RFx Submission Mode"], summary="Create a RFx Submission Mode", description="This method will create a new RFx Submission Mode")
+@router.post("/rfx_submission_mode/", tags=["RFx Submission Mode"], summary="Create a RFx Submission Mode", description="This method will create a new RFx Submission Mode")
 async def add_rfx_submission_mode(rfx_content_sub_data: RfxSubModeCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_submission_mode(rfx_content_sub_data)
 

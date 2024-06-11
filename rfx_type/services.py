@@ -2,9 +2,12 @@ from typing import List, Optional
 from fastapi import HTTPException
 from db.connection import get_db_connection
 from rfx_type.schemas import RfxTypeCreate, RfxType
+import psycopg2
+import json, random
+from psycopg2 import errors as psycopg_errors
 
 
-def create_rfx_type(item_form_data: RfxTypeCreate) -> RfxType:
+def create_rfx_type(item_form_data: RfxTypeCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
 
@@ -19,33 +22,47 @@ def create_rfx_type(item_form_data: RfxTypeCreate) -> RfxType:
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
 
-    values = (
-        item_form_data.tenant_id,
-        item_form_data.title,
-        item_form_data.is_active,
-        item_form_data.created_at 
-
-
-    )
-
-    cursor.execute(query, values)
-    new_item = cursor.fetchone()
-
-   
-    conn.commit()
-    conn.close()
-
-    if new_item:
-        return RfxType(
-            rfx_type_id=new_item[0],
-            tenant_id=new_item[1],
-            title=new_item[2],
-            is_active=new_item[3],
-            created_at=new_item[4]
+    try:
+        values = (
+            item_form_data.tenant_id,
+            item_form_data.title,
+            item_form_data.is_active,
+            item_form_data.created_at
         )
-    else:
-        raise HTTPException(status_code=404, detail="RFx Type Detail creation failed")
 
+        cursor.execute(query, values)
+        new_item = cursor.fetchone()
+
+    
+        conn.commit()
+        conn.close()
+
+        if new_item:
+            data ={
+                "rfx_type_id" : new_item[0],
+                "tenant_id" : new_item[1],
+                "title" : new_item[2],
+            }
+            error_response = {"msg": "RFx Type created sucessfully", "code": 201, "data": data}
+            return json.dumps(error_response)
+        else:
+            error_response = {"msg": "RFx Type already exists", "code": 400}
+            return json.dumps(error_response)
+
+    except psycopg_errors.UniqueViolation as e:
+        # Catch psycopg2 UniqueViolation error
+        error_response = {"msg": "RFx Type already exists", "code": 409}
+        return json.dumps(error_response)
+
+    except psycopg2.Error as e:
+        # Handle other psycopg2 errors       
+        error_response = {"msg": f"Database error: {e}", "code": 500}
+        return json.dumps(error_response)
+
+    except Exception as e:
+        # Handle any other unexpected errors
+        error_response = {"msg": f"Unexpected error: {e}", "code": 500}
+        return json.dumps(error_response)
 
 def get_all_rfx_type(tenant_id: int,  searchTerm: str, offset: int, limit: int) :
     conn = get_db_connection()
