@@ -5,6 +5,7 @@ from opp_committed_for_sales_budget.schemas import OppComittedForSalesBudget, Op
 import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
+import re
 
 
 def create_opp_committed_for_sales_budget(item_form_data: OppComittedForSalesBudgetCreate):
@@ -22,9 +23,10 @@ def create_opp_committed_for_sales_budget(item_form_data: OppComittedForSalesBud
     """
 
     try:
+        title = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.title)
         values = (
             item_form_data.tenant_id,
-            item_form_data.title,
+            title,
             item_form_data.active,
             item_form_data.created_at
         )

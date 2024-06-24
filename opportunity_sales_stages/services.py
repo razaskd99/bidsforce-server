@@ -5,6 +5,7 @@ from opportunity_sales_stages.schemas import OpportunitySalesStages, Opportunity
 import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
+import re
 
 
 def create_opportunity_sales_stages(item_form_data: OpportunitySalesStagesCreate):
@@ -21,9 +22,10 @@ def create_opportunity_sales_stages(item_form_data: OpportunitySalesStagesCreate
     ) VALUES (%s, %s, %s, %s) RETURNING *;
     """
     try:
+        title = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.title)
         values = (
             item_form_data.tenant_id,
-            item_form_data.title,
+            title,
             item_form_data.active,
             item_form_data.created_at
         )

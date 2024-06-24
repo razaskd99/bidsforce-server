@@ -15,50 +15,50 @@ from auth.services import get_current_user
 
 router = APIRouter()
 
-@router.post("/rfx_stage/", tags=["Rfx Stage"], summary="Create a Rfx Stage", description="This method will create a new Rfx Stage")
+@router.post("/rfx_stage/", tags=["Rfx Stage (RFx Prereq)"], summary="Create a Rfx Stage", description="This method will create a new Rfx Stage")
 async def add_rfx_stage(bid_stage_data: RfxStageCreate, current_user: str = Depends(get_current_user)):
     return create_rfx_stage(bid_stage_data)
 
-@router.get("/rfx_stage/tenant/{tenant_id}", tags=["Rfx Stage"], summary="Get All Rfx Stage", description="This method will return all Rfx Stage")
+@router.get("/rfx_stage/tenant/{tenant_id}", tags=["Rfx Stage (RFx Prereq)"], summary="Get All Rfx Stage", description="This method will return all Rfx Stage")
 async def list_rfx_stage(tenant_id: int, searchTerm: str, offset: int, limit: int, current_user: str = Depends(get_current_user)):
     return_item = get_all_rfx_stage(tenant_id,searchTerm, offset, limit)
     if not return_item:
         raise HTTPException(status_code=404, detail="Rfx Stage not found")
     return return_item
 
-@router.put("/rfx_stage/id/{rfx_stage_id}", response_model=RfxStage, tags=["Rfx Stage"], summary="Update an Rfx Stage", description="This method will update an existing Rfx Stage")
+@router.put("/rfx_stage/id/{rfx_stage_id}", response_model=RfxStage, tags=["Rfx Stage (RFx Prereq)"], summary="Update an Rfx Stage", description="This method will update an existing Rfx Stage")
 async def edit_rfx_stage(rfx_stage_id: int,  bid_stage_data: RfxStageCreate, current_user: str = Depends(get_current_user)):
     return update_rfx_stage(rfx_stage_id, bid_stage_data)
 
-@router.delete("/rfx_stage/id/{rfx_stage_id}", tags=["Rfx Stage"], summary="Delete an Rfx Stage", description="This method will delete Rfx Stage")
+@router.delete("/rfx_stage/id/{rfx_stage_id}", tags=["Rfx Stage (RFx Prereq)"], summary="Delete an Rfx Stage", description="This method will delete Rfx Stage")
 async def remove_rfx_stage(rfx_stage_id: int, current_user: str = Depends(get_current_user)):
     deleted = delete_rfx_stage(rfx_stage_id,)
     if not deleted:
         raise HTTPException(status_code=404, detail="Bid Stage not found")
     return {"message": "Rfx Stage deleted successfully"}
 
-@router.delete("/rfx_stage/all-rfx/tenant_id/{tenant_id}", tags=["Rfx Stage"], summary="Delete an Rfx Stage", description="This method will delete Rfx Stage")
+@router.delete("/rfx_stage/all-rfx/tenant_id/{tenant_id}", tags=["Rfx Stage (RFx Prereq)"], summary="Delete an Rfx Stage", description="This method will delete Rfx Stage")
 async def remove_all_rfx_stage(tenant_id: int, current_user: str = Depends(get_current_user)):
     deleted = delete_all_rfx_stage(tenant_id,)
     if not deleted:
         raise HTTPException(status_code=404, detail="Bid Stage not found")
     return {"message": "Rfx Stage deleted successfully"}
 
-@router.get("/rfx_stage/id/{rfx_stage_id}", response_model=RfxStage, tags=["Rfx Stage"], summary="Get Rfx Stage by ID", description="This method will return Rfx Stage by ID")
+@router.get("/rfx_stage/id/{rfx_stage_id}", response_model=RfxStage, tags=["Rfx Stage (RFx Prereq)"], summary="Get Rfx Stage by ID", description="This method will return Rfx Stage by ID")
 async def get_rfx_stage_by_id_api(rfx_stage_id: int, current_user: str = Depends(get_current_user)):
     return_item = get_rfx_stage_by_id(rfx_stage_id)
     if not return_item:
         raise HTTPException(status_code=404, detail="Rfx Stage not found")
     return return_item
 
-@router.get("/rfx_stage/tenant/{tenant_id}/title/{title}", response_model=List[RfxStage], tags=["Rfx Stage"], summary="Get Rfx Stage by Tenant ID and Title", description="This method will return all Rfx Stage by Tenant ID and Title")
+@router.get("/rfx_stage/tenant/{tenant_id}/title/{title}", response_model=List[RfxStage], tags=["Rfx Stage (RFx Prereq)"], summary="Get Rfx Stage by Tenant ID and Title", description="This method will return all Rfx Stage by Tenant ID and Title")
 async def get_rfx_stage_by_alias_api(tenant_id: int, title: str, current_user: str = Depends(get_current_user)):
     return_item = get_rfx_stage_by_name(tenant_id, title)
     if not return_item:
         raise HTTPException(status_code=404, detail="Rfx Stage not found")
     return return_item
 
-@router.get("/rfx_stage/tenant/{tenant_id}/active/{true}", response_model=List[RfxStage], tags=["Rfx Stage"], summary="Get Active Rfx Stage by Tenant ID", description="This method will return all Active Rfx Stage by Tenant ID")
+@router.get("/rfx_stage/tenant/{tenant_id}/active/{true}", response_model=List[RfxStage], tags=["Rfx Stage (RFx Prereq)"], summary="Get Active Rfx Stage by Tenant ID", description="This method will return all Active Rfx Stage by Tenant ID")
 async def get_rfx_stage_by_active_api(tenant_id: int,current_user: str = Depends(get_current_user)):
     return_item = get_all_active_rfx_stage(tenant_id)
     if not return_item:

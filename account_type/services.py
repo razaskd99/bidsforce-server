@@ -5,6 +5,7 @@ from account_type.schemas import AccountTypeCreate, AccountType
 import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
+import re
 
 
 def create_account_type(item_form_data: AccountTypeCreate):
@@ -20,9 +21,10 @@ def create_account_type(item_form_data: AccountTypeCreate):
     ) VALUES (%s, %s, %s) RETURNING *;
     """
     try:
+        type_name = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.type_name)
         values = (
             item_form_data.tenant_id,
-            item_form_data.type_name,
+            type_name,
             item_form_data.created_at
         )
         cursor.execute(query, values)

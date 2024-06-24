@@ -6,6 +6,8 @@ import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
 import datetime
+import re
+
 
 def create_persona(item_form_data: PersonaCreate):
     conn = get_db_connection()
@@ -22,9 +24,10 @@ def create_persona(item_form_data: PersonaCreate):
     """
 
     try:
+        persona_role = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.persona_role)
         values = (
             item_form_data.tenant_id,
-            item_form_data.persona_role,
+            persona_role,
             item_form_data.description,
             item_form_data.is_active,
             item_form_data.created_on

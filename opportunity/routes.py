@@ -84,3 +84,13 @@ async def delete_all_Opportunity(Opportunity_id: int, current_user: str = Depend
 )
 async def get_opportunity_id_max_api(current_user: str = Depends(get_current_user)):
     return services.get_opportunity_id_max()
+
+@router.get(
+    "/Opportunity/tenant/{tenant_id}/opp-number/{opp_number}",
+    response_model=List[OpportunityGet],
+    tags=["Opportunity"],
+    summary="Get Opportunity by Opportunity Number",
+    description="Retrieves a Opportunity entry from the database by Opportunity Number."
+)
+async def get_opportunity_by_opp_number_api(tenant_id: int, opp_number: str, current_user: str = Depends(get_current_user)):
+    return services.get_opportunity_by_opp_number(tenant_id, opp_number)

@@ -5,12 +5,12 @@ from rfx_content_submission.schemas import RfxContentSubCreate, RfxContentSub
 import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
+import re
 
 
 def create_rfx_content_submission(item_form_data: RfxContentSubCreate):
     conn = get_db_connection()
     cursor = conn.cursor()
-
 
     query = """
     INSERT INTO rfx_content_submission (
@@ -22,9 +22,10 @@ def create_rfx_content_submission(item_form_data: RfxContentSubCreate):
     """
 
     try:
+        title = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.title)
         values = (
             item_form_data.tenant_id,
-            item_form_data.title,
+            title,
             item_form_data.is_active,
             item_form_data.created_at
         )

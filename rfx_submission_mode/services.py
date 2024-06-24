@@ -5,6 +5,7 @@ from rfx_submission_mode.schemas import RfxSubModeCreate, RfxSubMode
 import psycopg2
 import json, random
 from psycopg2 import errors as psycopg_errors
+import re
 
 
 def create_rfx_submission_mode(item_form_data: RfxSubModeCreate):
@@ -22,9 +23,10 @@ def create_rfx_submission_mode(item_form_data: RfxSubModeCreate):
     """
 
     try:
+        title = re.sub(r'\w+', lambda m:m.group(0).capitalize(), item_form_data.title)
         values = (
             item_form_data.tenant_id,
-            item_form_data.title,
+            title,
             item_form_data.is_active,
             item_form_data.created_at
         )

@@ -37,6 +37,7 @@ from opportunity_industry.routes import router as opportunity_industry_router
 
 from docvalt.routes import router as docvalt_router
 
+from rfx.routes import router as rfx_router
 from bid_validity.routes import router as bid_validity_router
 from rfx_type.routes import router as rfx_type_router
 from rfx_content_submission.routes import router as rfx_content_submission_router
@@ -44,10 +45,7 @@ from rfx_submission_mode.routes import router as rfx_submission_mode_router
 from rfx_stage.routes import router as rfx_stage_router
 
 
-from rfx.routes import router as rfx_router
-
-from rfx_detail.routes import router as rfx_detail_router
-
+#from rfx_detail.routes import router as rfx_detail_router
 
 #from rfx_phase_stage.routes import router as rfx_phase_stage_router
 #from rfx_phase_stage_detail.routes import router as rfx_phase_stage_detail_stage_router
@@ -164,17 +162,15 @@ app.include_router(opportunity_industry_router, prefix="/opportunity_industry")
 
 app.include_router(docvalt_router, prefix="/docvalt")
 
-
+app.include_router(rfx_router, prefix="/rfx")
 app.include_router(bid_validity_router, prefix="/bid_validity")
 app.include_router(rfx_type_router, prefix="/rfx_type")
 app.include_router(rfx_content_submission_router, prefix="/rfx_content_submission")
 app.include_router(rfx_submission_mode_router, prefix="/rfx_submission_mode")
 app.include_router(rfx_stage_router, prefix="/rfx_stage")
 
-app.include_router(rfx_router, prefix="/rfx")
-app.include_router(rfx_detail_router, prefix="/rfx_detail")
 
-
+#app.include_router(rfx_detail_router, prefix="/rfx_detail")
 #app.include_router(rfx_phase_stage_router, prefix="/rfx_phase_stage")
 #app.include_router(rfx_phase_stage_detail_stage_router, prefix="/rfx_phase_stage_detail_stage")
 

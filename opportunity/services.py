@@ -468,3 +468,64 @@ def get_opportunity_id_max() -> Optional[OpportunityGetMax]:
             )
     else:
         None
+        
+def get_opportunity_by_opp_number(tenant_id: int, opp_number: str) -> List[OpportunityGet]:
+    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    opp_number = '%' + opp_number.lower() + '%'
+    
+    query = """
+         SELECT o.*, a.account_name AS enduser_name, aa.account_name AS customer_name, CONCAT(u.first_name, ' ', u.last_name) AS owner_name
+            FROM opportunity o
+            LEFT JOIN account a ON a.account_id=o.enduser_id 
+            LEFT JOIN account aa ON aa.account_id=o.customer_id 
+            LEFT JOIN users u ON u.user_id=o.opp_owner_id        
+        WHERE o.tenant_id = %s AND (lower(o.opp_number) LIKE %s OR lower(o.opp_title) LIKE %s)
+        ORDER BY o.created_at DESC;
+        """
+
+    cursor.execute(query, (tenant_id, opp_number.lower(), opp_number.lower(),))
+    opportunity = cursor.fetchall()
+
+    conn.close()
+
+    if opportunity:
+            return [
+                OpportunityGet(
+                opportunity_id=row[0],
+                tenant_id=row[1],
+                account_id=row[2],
+                opp_number=row[3],
+                opp_title=row[4],
+                customer_id=row[5],
+                enduser_id=row[6],
+                enduser_project=row[7],
+                opp_value=row[8],
+                opp_currency=row[9],
+                opp_sale_stage=row[10],
+                opp_pursuit_progress=row[11],
+                opp_business_line=row[12],
+                opp_comm_sales_budget=row[13],
+                opp_industry=row[14],
+                opp_owner_id=row[15],
+                region=row[16],
+                bidding_unit=row[17],
+                project_type=row[18],
+                opp_type=row[19],
+                description=row[20],
+                status=row[21],
+                expected_award_date=row[22],
+                expected_rfx_date=row[23],
+                close_date=row[24],
+                updated_at=row[25],
+                created_at=row[26],
+                data=row[27],
+                enduser_name=row[28],
+                customer_name=row[29],  
+                owner_name=row[30]
+            )
+                for row in opportunity      
+        ]
+    else:
+        raise HTTPException(status_code=404, detail="Opportunity not found")  
