@@ -214,6 +214,7 @@ app.include_router(bidteam_router, prefix="/bid_teams")
 
 
 app.include_router(control_panel_router, prefix="/admin/control-panel") 
+
 app.include_router(uploads_router, prefix="/uploads")
 
 app.include_router(users_template_routers, prefix="/templates")
